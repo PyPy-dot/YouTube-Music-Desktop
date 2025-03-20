@@ -89,7 +89,7 @@ class Ui_MainWindow(QMainWindow):
         except FileNotFoundError:
             print("Cookie file not found. Starting with an empty cookie store.")
         except json.decoder.JSONDecodeError:
-            print("Cookie JSONDecodeError. Starting with an empty cookie store.")
+            print("Cookie file is empty. Starting with an empty cookie store.")
 
 
     # setupUi
