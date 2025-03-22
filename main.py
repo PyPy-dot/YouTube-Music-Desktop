@@ -1,7 +1,7 @@
 import json
 import sys
 
-from PySide6.QtCore import QTimer, QEvent
+from PySide6.QtCore import QTimer, QEvent, QLockFile
 from PySide6.QtNetwork import QNetworkCookie
 from PySide6.QtWebEngineCore import QWebEngineProfile
 from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
@@ -10,13 +10,6 @@ import threading
 
 
 class YouTubeMusic(QMainWindow):
-    _instance = None
-
-    def __new__(cls, *args, **kwargs):
-        if cls._instance is None:
-            cls._instance = super(YouTubeMusic, cls).__new__(cls)
-        return cls._instance
-
     def __init__(self) -> None:
         super(YouTubeMusic, self).__init__()
         self.cookies_list = []
@@ -38,7 +31,6 @@ class YouTubeMusic(QMainWindow):
                 'isSecure': cookie.isSecure(),
                 'isHttpOnly': cookie.isHttpOnly()
             } for cookie in self.cookies_list], file, indent=4)
-        print("Cookies saved.", len(self.cookies_list))
         event.accept()
 
     def save_cookies(self, cookie: QNetworkCookie) -> None:
@@ -70,9 +62,18 @@ class YouTubeMusic(QMainWindow):
             print("Cookie file not found. Starting with an empty cookie store.")
 
 
-if __name__ == '__main__':
+def main() -> None:
     app = QApplication(sys.argv)
+    lock_file = QLockFile("my_app.lock")
+
+    if not lock_file.tryLock(0):
+        return
+
     window = YouTubeMusic()
     window.show()
 
     sys.exit(app.exec())
+
+
+if __name__ == '__main__':
+    main()
