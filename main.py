@@ -1,7 +1,7 @@
 import json
 import sys
 
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QTimer, QEvent
 from PySide6.QtNetwork import QNetworkCookie
 from PySide6.QtWebEngineCore import QWebEngineProfile
 from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
@@ -10,7 +10,7 @@ import threading
 
 
 class YouTubeMusic(QMainWindow):
-    def __init__(self):
+    def __init__(self) -> None:
         super(YouTubeMusic, self).__init__()
         self.cookies_list = []
         self.filename = 'cookies.json'
@@ -20,9 +20,8 @@ class YouTubeMusic(QMainWindow):
         self.cookie_store = self.profile.cookieStore()
         self.cookie_store.cookieAdded.connect(self.save_cookies)
         self.load_cookies()
-        self.cache_cookies()
 
-    def closeEvent(self, event):
+    def closeEvent(self, event: QEvent) -> None:
         with open(self.filename, 'w') as file:
             json.dump([{
                 'name': cookie.name().toStdString(),
@@ -35,7 +34,7 @@ class YouTubeMusic(QMainWindow):
         print("Cookies saved.", len(self.cookies_list))
         event.accept()
 
-    def save_cookies(self, cookie):
+    def save_cookies(self, cookie: QNetworkCookie) -> None:
         for ind, cookie_ in enumerate(self.cookies_list):
             if cookie_.name() == cookie.name():
                 self.cookies_list[ind] = cookie
@@ -43,13 +42,7 @@ class YouTubeMusic(QMainWindow):
         else:
             self.cookies_list.append(cookie)
 
-    def load_cookies(self):
-        self.json_to_cookie(self.cookie_store.setCookie)
-
-    def cache_cookies(self):
-        self.json_to_cookie(self.cookies_list.append)
-
-    def json_to_cookie(self, func):
+    def load_cookies(self) -> None:
         try:
             with open(self.filename, 'r') as f:
                 cookies = json.load(f)
@@ -62,7 +55,8 @@ class YouTubeMusic(QMainWindow):
                     cookie.setPath(cookie_data['path'])
                     cookie.setSecure(cookie_data['isSecure'])
                     cookie.setHttpOnly(cookie_data['isHttpOnly'])
-                    func(cookie)
+                    self.cookies_list.append(cookie)
+                    self.cookie_store.setCookie(cookie)
         except json.decoder.JSONDecodeError:
             print("Cookie file is empty. Starting with an empty cookie store.")
         except FileNotFoundError:
