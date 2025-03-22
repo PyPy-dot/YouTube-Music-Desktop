@@ -16,9 +16,7 @@ class YouTubeMusic(QMainWindow):
         self.filename = 'cookies.json'
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.profile = QWebEngineProfile().defaultProfile()
-        self.cookie_store = self.profile.cookieStore()
-        self.cookie_store.cookieAdded.connect(self.save_cookies)
+        self.ui.cookie_store.cookieAdded.connect(self.save_cookies)
         self.load_cookies()
 
     def closeEvent(self, event: QEvent) -> None:
@@ -55,7 +53,7 @@ class YouTubeMusic(QMainWindow):
                     cookie.setSecure(cookie_data['isSecure'])
                     cookie.setHttpOnly(cookie_data['isHttpOnly'])
                     self.cookies_list.append(cookie)
-                    self.cookie_store.setCookie(cookie)
+                    self.ui.cookie_store.setCookie(cookie)
         except json.decoder.JSONDecodeError:
             print("Cookie file is empty. Starting with an empty cookie store.")
         except FileNotFoundError:
