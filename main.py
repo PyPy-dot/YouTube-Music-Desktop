@@ -10,6 +10,13 @@ import threading
 
 
 class YouTubeMusic(QMainWindow):
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super(YouTubeMusic, cls).__new__(cls)
+        return cls._instance
+
     def __init__(self) -> None:
         super(YouTubeMusic, self).__init__()
         self.cookies_list = []
@@ -44,8 +51,8 @@ class YouTubeMusic(QMainWindow):
 
     def load_cookies(self) -> None:
         try:
-            with open(self.filename, 'r') as f:
-                cookies = json.load(f)
+            with open(self.filename, 'r') as file:
+                cookies = json.load(file)
                 for cookie_data in cookies:
                     cookie = QNetworkCookie(
                         bytes(cookie_data['name'], 'utf-8'),
